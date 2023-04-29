@@ -21,7 +21,7 @@ public class UserServiceImpl implements UserService {
 	private UserDetailsRepo usrRepo;
 	@Autowired
 	private EmailSender mailSender;
-
+	
 	@Autowired
 	private HttpSession session;
 
@@ -44,11 +44,16 @@ public class UserServiceImpl implements UserService {
 		BeanUtils.copyProperties(signup, user);
 
 		String tempPasswd = PasswordUtil.createPassword();
-
+		String ip = "";
+//		String port = env.getProperties().getProperty("local.server.port");
 		user.setPwd(tempPasswd);
 		user.setAccountStatus("LOCKED");
 		this.usrRepo.save(user);
-
+//		try {
+//			ip = InetAddress.getLocalHost().getHostAddress();
+//		} catch (UnknownHostException e) {
+//			e.printStackTrace();
+//		}
 		String to = signup.getEmail();
 		String subject = "Unlock Your Account";
 		StringBuffer body = new StringBuffer("");
@@ -94,7 +99,7 @@ public class UserServiceImpl implements UserService {
 		if (user.getAccountStatus().equals("LOCKED")) {
 			return Account.LOCKED;
 		}
-		
+
 		this.session.setAttribute("userId", user.getUserId());
 		return Account.LOGIN_SUCCESS;
 	}
@@ -108,7 +113,7 @@ public class UserServiceImpl implements UserService {
 		String subject = "Password Recovery";
 		String body = "Password  ::  <b>" + user.getPwd() + "</b>";
 		this.mailSender.sendMail(subject, body, user.getEmail());
-		
+
 		return Account.RECOVERY_SUCCESS;
 	}
 
